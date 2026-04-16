@@ -1,0 +1,17 @@
+Options -Indexes
+ServerSignature Off
+
+RewriteEngine On
+
+# Redirigir todo a index.php (frontend controller)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?ruta=$1 [QSA,L]
+
+# Bloquear acceso a archivos sensibles
+<FilesMatch "\.(env|log|sql|sh|bak)$">
+    Require all denied
+</FilesMatch>
+
+# Cabecera de seguridad adicional
+Header set X-Powered-By "Mi Servidor"

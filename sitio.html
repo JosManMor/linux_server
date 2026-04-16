@@ -1,0 +1,523 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1rem 0; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 6px 14px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); font-family: var(--font-sans); transition: all 0.15s; }
+.tab.active { background: var(--color-background-primary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.section { display: none; }
+.section.active { display: block; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 0.75rem; font-family: var(--font-sans); text-transform: uppercase; letter-spacing: 0.06em; }
+pre { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; font-size: 12px; line-height: 1.75; overflow-x: auto; white-space: pre; font-family: var(--font-mono); color: var(--color-text-primary); position: relative; }
+.comment { color: #888780; }
+.cmd { color: #185FA5; }
+.kw { color: #3B6D11; }
+.str { color: #993C1D; }
+.num { color: #854F0B; }
+.tag { color: #533AB7; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); font-family: var(--font-sans); font-weight: 500; margin: 0 4px 4px 0; }
+.badge-info { background: #E6F1FB; color: #0C447C; }
+.badge-warn { background: #FAEEDA; color: #633806; }
+.badge-ok { background: #EAF3DE; color: #27500A; }
+.badge-danger { background: #FCEBEB; color: #791F1F; }
+.copy-btn { float: right; font-size: 11px; padding: 3px 8px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; color: var(--color-text-secondary); font-family: var(--font-sans); }
+.copy-btn:hover { background: var(--color-background-secondary); }
+.step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 0.6rem; }
+.step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; font-family: var(--font-sans); color: var(--color-text-secondary); }
+.step-content { flex: 1; font-size: 13px; font-family: var(--font-sans); color: var(--color-text-secondary); line-height: 1.5; padding-top: 2px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media(max-width:600px){ .grid2 { grid-template-columns: 1fr; } }
+.tree { font-family: var(--font-mono); font-size: 12px; line-height: 1.8; color: var(--color-text-primary); background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; }
+.tree .dir { color: #185FA5; font-weight: 500; }
+.tree .file { color: var(--color-text-primary); }
+.tree .note { color: #888780; }
+.arch-box { padding: 8px 12px; border-radius: var(--border-radius-md); font-size: 12px; font-family: var(--font-sans); text-align: center; border: 0.5px solid; margin-bottom: 4px; }
+.port-tag { font-size: 10px; opacity: 0.8; }
+</style>
+
+<div class="wrap">
+<div class="tabs">
+  <button class="tab active" onclick="show('lamp')">Stack LAMP</button>
+  <button class="tab" onclick="show('sitio')">Sitio PHP propio</button>
+  <button class="tab" onclick="show('usuarios')">Script usuarios</button>
+  <button class="tab" onclick="show('ufw')">Firewall UFW</button>
+  <button class="tab" onclick="show('arch')">Estructura</button>
+</div>
+
+<div id="lamp" class="section active">
+  <div class="card">
+    <div class="card-title">1 · Instalar Apache2 + MariaDB + PHP</div>
+    <button class="copy-btn" onclick="copyBlock('l1')">Copiar</button>
+    <pre id="l1"><span class="comment"># Actualizar sistema</span>
+<span class="cmd">sudo apt update && sudo apt upgrade -y</span>
+
+<span class="comment"># Instalar Apache2</span>
+<span class="cmd">sudo apt install apache2 -y</span>
+<span class="cmd">sudo systemctl enable --now apache2</span>
+
+<span class="comment"># Instalar MariaDB</span>
+<span class="cmd">sudo apt install mariadb-server mariadb-client -y</span>
+<span class="cmd">sudo systemctl enable --now mariadb</span>
+<span class="cmd">sudo mysql_secure_installation</span>
+
+<span class="comment"># Instalar PHP y módulos para sitio propio</span>
+<span class="cmd">sudo apt install php libapache2-mod-php php-mysql \
+  php-curl php-gd php-mbstring php-xml php-zip -y</span>
+
+<span class="comment"># Verificar versiones</span>
+<span class="cmd">apache2 -v && mysql --version && php -v</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">2 · Base de datos para el sitio</div>
+    <button class="copy-btn" onclick="copyBlock('l2')">Copiar</button>
+    <pre id="l2"><span class="cmd">sudo mysql -u root -p</span>
+
+<span class="comment">-- Crear BD y usuario del sitio</span>
+<span class="kw">CREATE DATABASE</span> mi_sitio_db
+  <span class="kw">CHARACTER SET</span> utf8mb4
+  <span class="kw">COLLATE</span> utf8mb4_unicode_ci;
+
+<span class="kw">CREATE USER</span> <span class="str">'sitio_user'</span>@<span class="str">'localhost'</span>
+  <span class="kw">IDENTIFIED BY</span> <span class="str">'ClaveSegura2024!'</span>;
+
+<span class="kw">GRANT ALL PRIVILEGES ON</span> mi_sitio_db.* 
+  <span class="kw">TO</span> <span class="str">'sitio_user'</span>@<span class="str">'localhost'</span>;
+
+<span class="kw">FLUSH PRIVILEGES</span>;
+<span class="kw">EXIT</span>;</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">3 · VirtualHost Apache para el sitio propio</div>
+    <button class="copy-btn" onclick="copyBlock('l3')">Copiar</button>
+    <pre id="l3"><span class="comment"># Crear directorio del sitio</span>
+<span class="cmd">sudo mkdir -p /var/www/mi_sitio/{public,uploads,includes,assets}</span>
+<span class="cmd">sudo chown -R www-data:www-data /var/www/mi_sitio</span>
+<span class="cmd">sudo chmod -R 755 /var/www/mi_sitio</span>
+
+<span class="comment"># Crear VirtualHost</span>
+<span class="cmd">sudo nano /etc/apache2/sites-available/mi_sitio.conf</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">3.1 · Contenido de mi_sitio.conf</div>
+    <button class="copy-btn" onclick="copyBlock('l4')">Copiar</button>
+    <pre id="l4">&lt;VirtualHost *:<span class="num">80</span>&gt;
+    ServerName mi_sitio.local
+    ServerAlias www.mi_sitio.local
+    DocumentRoot /var/www/mi_sitio/public
+
+    <span class="comment"># Logs propios del sitio</span>
+    ErrorLog  ${APACHE_LOG_DIR}/mi_sitio_error.log
+    CustomLog ${APACHE_LOG_DIR}/mi_sitio_access.log combined
+
+    &lt;Directory /var/www/mi_sitio/public&gt;
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+
+    <span class="comment"># Bloquear acceso a includes/ desde navegador</span>
+    &lt;Directory /var/www/mi_sitio/includes&gt;
+        Require all denied
+    &lt;/Directory&gt;
+
+    <span class="comment"># Cabeceras de seguridad</span>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+&lt;/VirtualHost&gt;</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">4 · Habilitar sitio y módulos</div>
+    <button class="copy-btn" onclick="copyBlock('l5')">Copiar</button>
+    <pre id="l5"><span class="cmd">sudo a2ensite mi_sitio.conf</span>
+<span class="cmd">sudo a2dissite 000-default.conf</span>  <span class="comment"># deshabilitar default</span>
+<span class="cmd">sudo a2enmod rewrite headers</span>
+<span class="cmd">sudo systemctl reload apache2</span>
+
+<span class="comment"># Agregar hostname local para pruebas</span>
+<span class="cmd">echo "127.0.0.1 mi_sitio.local" | sudo tee -a /etc/hosts</span></pre>
+  </div>
+</div>
+
+<div id="sitio" class="section">
+  <div class="card">
+    <div class="card-title">Estructura de archivos del sitio</div>
+    <div class="tree">
+<span class="dir">/var/www/mi_sitio/</span>
+├── <span class="dir">public/</span>          <span class="note"># raíz web (DocumentRoot)</span>
+│   ├── <span class="file">index.php</span>       <span class="note"># página principal</span>
+│   ├── <span class="file">contacto.php</span>    <span class="note"># formulario de contacto</span>
+│   ├── <span class="file">.htaccess</span>       <span class="note"># URLs limpias</span>
+│   └── <span class="dir">assets/</span>
+│       ├── <span class="dir">css/</span> <span class="file">style.css</span>
+│       └── <span class="dir">js/</span>  <span class="file">main.js</span>
+├── <span class="dir">includes/</span>        <span class="note"># PHP privado (sin acceso web)</span>
+│   ├── <span class="file">config.php</span>      <span class="note"># credenciales BD</span>
+│   ├── <span class="file">db.php</span>          <span class="note"># conexión PDO</span>
+│   └── <span class="file">funciones.php</span>   <span class="note"># helpers</span>
+└── <span class="dir">uploads/</span>         <span class="note"># archivos subidos por usuarios</span>
+    ├── <span class="dir">webcontent1/</span>
+    ├── <span class="dir">webcontent2/</span>
+    └── <span class="dir">...</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">includes/config.php · Configuración BD</div>
+    <button class="copy-btn" onclick="copyBlock('s1')">Copiar</button>
+    <pre id="s1"><span class="tag">&lt;?php</span>
+<span class="comment">// includes/config.php — NUNCA exponer al navegador</span>
+<span class="kw">define</span>(<span class="str">'DB_HOST'</span>, <span class="str">'localhost'</span>);
+<span class="kw">define</span>(<span class="str">'DB_NAME'</span>, <span class="str">'mi_sitio_db'</span>);
+<span class="kw">define</span>(<span class="str">'DB_USER'</span>, <span class="str">'sitio_user'</span>);
+<span class="kw">define</span>(<span class="str">'DB_PASS'</span>, <span class="str">'ClaveSegura2024!'</span>);
+<span class="kw">define</span>(<span class="str">'SITE_NAME'</span>, <span class="str">'Mi Sitio Web'</span>);
+<span class="kw">define</span>(<span class="str">'UPLOAD_PATH'</span>, <span class="str">'/var/www/mi_sitio/uploads/'</span>);</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">includes/db.php · Conexión PDO</div>
+    <button class="copy-btn" onclick="copyBlock('s2')">Copiar</button>
+    <pre id="s2"><span class="tag">&lt;?php</span>
+<span class="comment">// includes/db.php</span>
+<span class="kw">require_once</span> <span class="kw">__DIR__</span> . <span class="str">'/config.php'</span>;
+
+<span class="kw">function</span> <span class="cmd">conectar</span>(): PDO {
+    <span class="kw">static</span> $pdo = <span class="kw">null</span>;
+    <span class="kw">if</span> ($pdo === <span class="kw">null</span>) {
+        $dsn = <span class="str">"mysql:host="</span> . DB_HOST .
+               <span class="str">";dbname="</span> . DB_NAME .
+               <span class="str">";charset=utf8mb4"</span>;
+        $pdo = <span class="kw">new</span> PDO($dsn, DB_USER, DB_PASS, [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => <span class="kw">false</span>,
+        ]);
+    }
+    <span class="kw">return</span> $pdo;
+}</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">public/index.php · Página principal</div>
+    <button class="copy-btn" onclick="copyBlock('s3')">Copiar</button>
+    <pre id="s3"><span class="tag">&lt;?php</span>
+<span class="kw">require_once</span> <span class="str">'../includes/config.php'</span>;
+<span class="kw">require_once</span> <span class="str">'../includes/db.php'</span>;
+
+<span class="comment">// Ejemplo: leer artículos de la BD</span>
+$pdo = <span class="cmd">conectar</span>();
+$stmt = $pdo-><span class="cmd">query</span>(<span class="str">"SELECT titulo, contenido, fecha
+                       FROM articulos
+                       ORDER BY fecha DESC
+                       LIMIT 5"</span>);
+$articulos = $stmt-><span class="cmd">fetchAll</span>();
+<span class="tag">?&gt;</span>
+<span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> lang=<span class="str">"es"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;meta</span> charset=<span class="str">"UTF-8"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;title&gt;</span><span class="tag">&lt;?=</span> SITE_NAME <span class="tag">?&gt;</span><span class="tag">&lt;/title&gt;</span>
+  <span class="tag">&lt;link</span> rel=<span class="str">"stylesheet"</span> href=<span class="str">"assets/css/style.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+  <span class="tag">&lt;header&gt;&lt;h1&gt;</span><span class="tag">&lt;?=</span> SITE_NAME <span class="tag">?&gt;</span><span class="tag">&lt;/h1&gt;&lt;/header&gt;</span>
+  <span class="tag">&lt;main&gt;</span>
+    <span class="tag">&lt;?php</span> <span class="kw">foreach</span> ($articulos <span class="kw">as</span> $art): <span class="tag">?&gt;</span>
+      <span class="tag">&lt;article&gt;</span>
+        <span class="tag">&lt;h2&gt;</span><span class="tag">&lt;?=</span> <span class="cmd">htmlspecialchars</span>($art[<span class="str">'titulo'</span>]) <span class="tag">?&gt;</span><span class="tag">&lt;/h2&gt;</span>
+        <span class="tag">&lt;p&gt;</span><span class="tag">&lt;?=</span> <span class="cmd">htmlspecialchars</span>($art[<span class="str">'contenido'</span>]) <span class="tag">?&gt;</span><span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;time&gt;</span><span class="tag">&lt;?=</span> $art[<span class="str">'fecha'</span>] <span class="tag">?&gt;</span><span class="tag">&lt;/time&gt;</span>
+      <span class="tag">&lt;/article&gt;</span>
+    <span class="tag">&lt;?php</span> <span class="kw">endforeach</span>; <span class="tag">?&gt;</span>
+  <span class="tag">&lt;/main&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">public/.htaccess · URLs limpias + seguridad</div>
+    <button class="copy-btn" onclick="copyBlock('s4')">Copiar</button>
+    <pre id="s4">Options -Indexes
+ServerSignature Off
+
+RewriteEngine On
+
+<span class="comment"># Redirigir todo a index.php (frontend controller)</span>
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?ruta=$1 [QSA,L]
+
+<span class="comment"># Bloquear acceso a archivos sensibles</span>
+&lt;FilesMatch "\.(env|log|sql|sh|bak)$"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;
+
+<span class="comment"># Cabecera de seguridad adicional</span>
+Header set X-Powered-By "Mi Servidor"</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Tabla en MariaDB para el sitio</div>
+    <button class="copy-btn" onclick="copyBlock('s5')">Copiar</button>
+    <pre id="s5"><span class="cmd">sudo mysql -u sitio_user -p mi_sitio_db</span>
+
+<span class="kw">CREATE TABLE</span> articulos (
+    id        <span class="kw">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    titulo    <span class="kw">VARCHAR</span>(<span class="num">200</span>) <span class="kw">NOT NULL</span>,
+    contenido <span class="kw">TEXT</span>,
+    autor     <span class="kw">VARCHAR</span>(<span class="num">50</span>),
+    fecha     <span class="kw">DATETIME DEFAULT</span> CURRENT_TIMESTAMP
+);
+
+<span class="comment">-- Insertar artículo de prueba</span>
+<span class="kw">INSERT INTO</span> articulos (titulo, contenido, autor)
+<span class="kw">VALUES</span> (
+    <span class="str">'Bienvenido a mi sitio'</span>,
+    <span class="str">'Este es el primer artículo del servidor LAMP propio.'</span>,
+    <span class="str">'admin'</span>
+);</pre>
+  </div>
+</div>
+
+<div id="usuarios" class="section">
+  <div class="card">
+    <div class="card-title">Script · crear_usuarios_web.sh</div>
+    <span class="badge badge-ok">for loop</span><span class="badge badge-info">bash</span><span class="badge badge-warn">permisos limitados</span>
+    <button class="copy-btn" onclick="copyBlock('u1')">Copiar</button>
+    <pre id="u1"><span class="comment">#!/bin/bash
+# ================================================
+# crear_usuarios_web.sh
+# Genera 5 usuarios con acceso limitado a uploads
+# del sitio propio en /var/www/mi_sitio/uploads/
+# ================================================</span>
+
+UPLOAD_BASE=<span class="str">"/var/www/mi_sitio/uploads"</span>
+LOG=<span class="str">"/root/credenciales_web.log"</span>
+GRUPO=<span class="str">"webupload"</span>
+
+<span class="comment"># Crear grupo compartido si no existe</span>
+<span class="cmd">getent group</span> <span class="str">"$GRUPO"</span> &>/dev/null || <span class="cmd">sudo groupadd</span> <span class="str">"$GRUPO"</span>
+
+<span class="comment"># Ajustar directorio base con SGID</span>
+<span class="cmd">sudo chown</span> www-data:<span class="str">"$GRUPO"</span> <span class="str">"$UPLOAD_BASE"</span>
+<span class="cmd">sudo chmod</span> <span class="num">2775</span> <span class="str">"$UPLOAD_BASE"</span>
+
+<span class="kw">echo</span> <span class="str">"=== Creación de usuarios $(date) ==="</span> | \
+  <span class="cmd">sudo tee -a</span> <span class="str">"$LOG"</span> >/dev/null
+
+<span class="comment"># Bucle for: crear usuarios webcontent1 al webcontent5</span>
+<span class="kw">for</span> i <span class="kw">in</span> $(<span class="cmd">seq 1 5</span>); <span class="kw">do</span>
+    USER=<span class="str">"webcontent$i"</span>
+    PASS=$(<span class="cmd">openssl rand -base64 14</span>)
+    USER_DIR=<span class="str">"$UPLOAD_BASE/$USER"</span>
+
+    <span class="comment">    # Crear usuario sin shell interactivo</span>
+    <span class="kw">if</span> <span class="cmd">id</span> <span class="str">"$USER"</span> &>/dev/null; <span class="kw">then</span>
+        <span class="kw">echo</span> <span class="str">"[SKIP] $USER ya existe"</span>
+    <span class="kw">else</span>
+        <span class="cmd">sudo useradd</span> \
+            --create-home \
+            --shell /usr/sbin/nologin \
+            --groups <span class="str">"$GRUPO"</span> \
+            --comment <span class="str">"Subidor de contenido web $i"</span> \
+            <span class="str">"$USER"</span>
+
+        <span class="kw">echo</span> <span class="str">"$USER:$PASS"</span> | <span class="cmd">sudo chpasswd</span>
+
+        <span class="comment">        # Directorio privado de uploads</span>
+        <span class="cmd">sudo mkdir -p</span> <span class="str">"$USER_DIR"</span>
+        <span class="cmd">sudo chown</span> <span class="str">"$USER"</span>:<span class="str">"$GRUPO"</span> <span class="str">"$USER_DIR"</span>
+        <span class="cmd">sudo chmod</span> <span class="num">750</span> <span class="str">"$USER_DIR"</span>
+
+        <span class="comment">        # Guardar credencial en log seguro</span>
+        <span class="kw">printf</span> <span class="str">"%-15s | %s\n"</span> <span class="str">"$USER"</span> <span class="str">"$PASS"</span> | \
+          <span class="cmd">sudo tee -a</span> <span class="str">"$LOG"</span> >/dev/null
+
+        <span class="kw">echo</span> <span class="str">"[OK] Creado: $USER → $USER_DIR"</span>
+    <span class="kw">fi</span>
+<span class="kw">done</span>
+
+<span class="comment"># Proteger log de credenciales</span>
+<span class="cmd">sudo chmod</span> <span class="num">600</span> <span class="str">"$LOG"</span>
+<span class="cmd">sudo chown</span> root:root <span class="str">"$LOG"</span>
+
+<span class="kw">echo</span> <span class="str">"
+--- Usuarios del grupo $GRUPO ---"</span>
+<span class="cmd">getent group</span> <span class="str">"$GRUPO"</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Ejecutar y verificar</div>
+    <button class="copy-btn" onclick="copyBlock('u2')">Copiar</button>
+    <pre id="u2"><span class="comment"># Dar permisos de ejecución</span>
+<span class="cmd">chmod +x</span> crear_usuarios_web.sh
+
+<span class="comment"># Ejecutar</span>
+<span class="cmd">sudo bash</span> crear_usuarios_web.sh
+
+<span class="comment"># Verificar usuarios creados</span>
+<span class="cmd">getent passwd</span> | <span class="cmd">grep</span> webcontent
+
+<span class="comment"># Ver directorios de upload generados</span>
+<span class="cmd">ls -la</span> /var/www/mi_sitio/uploads/
+
+<span class="comment"># Leer credenciales (solo root)</span>
+<span class="cmd">sudo cat</span> /root/credenciales_web.log</pre>
+  </div>
+</div>
+
+<div id="ufw" class="section">
+  <div class="card">
+    <div class="card-title">Habilitar UFW y política base</div>
+    <button class="copy-btn" onclick="copyBlock('f1')">Copiar</button>
+    <pre id="f1"><span class="comment"># Política por defecto: denegar todo lo entrante</span>
+<span class="cmd">sudo ufw default deny incoming</span>
+<span class="cmd">sudo ufw default allow outgoing</span>
+
+<span class="comment"># SSH primero (para no perder acceso remoto)</span>
+<span class="cmd">sudo ufw allow OpenSSH</span>
+
+<span class="comment"># Perfiles de aplicación Apache</span>
+<span class="cmd">sudo ufw allow 'Apache Full'</span>   <span class="comment"># HTTP 80 + HTTPS 443</span>
+
+<span class="comment"># Activar UFW</span>
+<span class="cmd">sudo ufw enable</span>
+
+<span class="comment"># Verificar</span>
+<span class="cmd">sudo ufw status verbose</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Perfil personalizado para el sitio propio</div>
+    <button class="copy-btn" onclick="copyBlock('f2')">Copiar</button>
+    <pre id="f2"><span class="comment"># Crear perfil UFW del sitio</span>
+<span class="cmd">sudo nano</span> /etc/ufw/applications.d/mi-sitio-web
+
+<span class="comment"># Contenido:</span>
+[Mi Sitio Web]
+title=Servidor LAMP Sitio Propio PHP
+description=Apache con PHP y MariaDB para sitio web propio
+ports=<span class="num">80</span>,<span class="num">443</span>/tcp
+
+<span class="comment"># Registrar y aplicar el perfil</span>
+<span class="cmd">sudo ufw app update</span> 'Mi Sitio Web'
+<span class="cmd">sudo ufw allow</span> 'Mi Sitio Web'
+<span class="cmd">sudo ufw app info</span> 'Mi Sitio Web'</pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Anti fuerza bruta · limit en SSH y web</div>
+    <span class="badge badge-danger">Seguridad crítica</span>
+    <button class="copy-btn" onclick="copyBlock('f3')">Copiar</button>
+    <pre id="f3"><span class="comment"># limit SSH: bloquea IP con más de 6 intentos en 30s</span>
+<span class="cmd">sudo ufw limit ssh</span>
+
+<span class="comment"># limit HTTP y HTTPS</span>
+<span class="cmd">sudo ufw limit 80/tcp</span>
+<span class="cmd">sudo ufw limit 443/tcp</span>
+
+<span class="comment"># Bloquear MariaDB al exterior (solo localhost)</span>
+<span class="cmd">sudo ufw deny 3306/tcp</span>
+
+<span class="comment"># Habilitar logging detallado</span>
+<span class="cmd">sudo ufw logging medium</span>
+
+<span class="comment"># Revisar intentos bloqueados</span>
+<span class="cmd">sudo grep "BLOCK" /var/log/ufw.log | tail -20</span>
+
+<span class="comment"># Estado final numerado</span>
+<span class="cmd">sudo ufw status numbered</span></pre>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Reglas por puerto</div>
+      <table style="width:100%;font-size:13px;font-family:var(--font-sans);border-collapse:collapse;">
+        <tr style="color:var(--color-text-secondary);font-size:11px;"><td style="padding:4px 0;">Puerto</td><td>Servicio</td><td>Regla UFW</td></tr>
+        <tr style="border-top:0.5px solid var(--color-border-tertiary);"><td style="padding:5px 0;"><code>22</code></td><td>SSH</td><td><span class="badge badge-warn" style="font-size:10px;">limit</span></td></tr>
+        <tr style="border-top:0.5px solid var(--color-border-tertiary);"><td style="padding:5px 0;"><code>80</code></td><td>HTTP</td><td><span class="badge badge-ok" style="font-size:10px;">allow + limit</span></td></tr>
+        <tr style="border-top:0.5px solid var(--color-border-tertiary);"><td style="padding:5px 0;"><code>443</code></td><td>HTTPS</td><td><span class="badge badge-ok" style="font-size:10px;">allow + limit</span></td></tr>
+        <tr style="border-top:0.5px solid var(--color-border-tertiary);"><td style="padding:5px 0;"><code>3306</code></td><td>MariaDB</td><td><span class="badge badge-danger" style="font-size:10px;">deny</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Ver logs en tiempo real</div>
+      <button class="copy-btn" onclick="copyBlock('f4')">Copiar</button>
+      <pre id="f4" style="font-size:11px;"><span class="comment"># Conexiones bloqueadas</span>
+<span class="cmd">sudo tail -f</span> /var/log/ufw.log
+
+<span class="comment"># Accesos al sitio</span>
+<span class="cmd">sudo tail -f</span> \
+  /var/log/apache2/mi_sitio_access.log
+
+<span class="comment"># Errores PHP/Apache</span>
+<span class="cmd">sudo tail -f</span> \
+  /var/log/apache2/mi_sitio_error.log</pre>
+    </div>
+  </div>
+</div>
+
+<div id="arch" class="section">
+  <div class="card">
+    <div class="card-title">Flujo completo del servidor</div>
+    <div style="padding:0.5rem 0;">
+      <div class="arch-box" style="background:#E6F1FB;color:#0C447C;border-color:#B5D4F4;">Navegador / Cliente HTTP<br><span class="port-tag">petición a mi_sitio.local</span></div>
+      <div style="text-align:center;font-size:16px;color:var(--color-text-secondary);margin:3px 0;">↓</div>
+      <div class="arch-box" style="background:#FCEBEB;color:#791F1F;border-color:#F7C1C1;">UFW Firewall<br><span class="port-tag">deny all · allow 80/443 · limit ssh · deny 3306</span></div>
+      <div style="text-align:center;font-size:16px;color:var(--color-text-secondary);margin:3px 0;">↓</div>
+      <div class="arch-box" style="background:#EAF3DE;color:#27500A;border-color:#C0DD97;">Apache2 · VirtualHost mi_sitio.conf<br><span class="port-tag">mod_rewrite · mod_headers · .htaccess</span></div>
+      <div style="text-align:center;font-size:16px;color:var(--color-text-secondary);margin:3px 0;">↓</div>
+      <div class="arch-box" style="background:#FAEEDA;color:#633806;border-color:#FAC775;">PHP 8 · public/index.php<br><span class="port-tag">PDO → includes/db.php → includes/config.php</span></div>
+      <div style="text-align:center;font-size:16px;color:var(--color-text-secondary);margin:3px 0;">↓</div>
+      <div class="arch-box" style="background:#EEEDFE;color:#3C3489;border-color:#CECBF6;">MariaDB · mi_sitio_db@localhost<br><span class="port-tag">tabla: articulos · usuario: sitio_user</span></div>
+      <div style="text-align:center;font-size:16px;color:var(--color-text-secondary);margin:3px 0;">↕</div>
+      <div class="arch-box" style="background:var(--color-background-secondary);color:var(--color-text-secondary);border-color:var(--color-border-tertiary);">Usuarios webcontent1–5 · grupo webupload<br><span class="port-tag">uploads/ · nologin · permisos 750</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Checklist de verificación final</div>
+    <div id="checklist"></div>
+  </div>
+</div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+function copyBlock(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const btn = event.target;
+  btn.textContent = 'Copiado';
+  setTimeout(()=> btn.textContent = 'Copiar', 1500);
+}
+const items = [
+  ['Apache activo',            'sudo systemctl is-active apache2'],
+  ['MariaDB activo',           'sudo systemctl is-active mariadb'],
+  ['PHP responde',             'php -r "echo phpversion();"'],
+  ['Sitio accesible',          'curl -I http://mi_sitio.local'],
+  ['BD conecta',               'mysql -u sitio_user -p mi_sitio_db -e "SHOW TABLES;"'],
+  ['UFW habilitado',           'sudo ufw status | head -1'],
+  ['5 usuarios creados',       'getent passwd | grep webcontent | wc -l'],
+  ['Uploads con permisos',     'ls -la /var/www/mi_sitio/uploads/'],
+  ['Puerto 3306 bloqueado',    'sudo ufw status | grep 3306'],
+];
+const el = document.getElementById('checklist');
+items.forEach(([label, cmd]) => {
+  el.innerHTML += `<div class="step">
+    <div class="step-num" style="color:#27500A;border-color:#C0DD97;">✓</div>
+    <div class="step-content">${label}<br><code style="font-size:11px;color:var(--color-text-secondary);">${cmd}</code></div>
+  </div>`;
+});
+</script>
