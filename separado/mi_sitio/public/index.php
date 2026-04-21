@@ -107,20 +107,6 @@ if (isset($_GET['error']) && $_GET['error'] === 'auth') {
     </section>
 
     <hr>
-
-    <section>
-      <h2>Publicar articulo</h2>
-
-      <?php if ($creado): ?>
-        <p>Articulo publicado correctamente.</p>
-      <?php endif; ?>
-
-      <?php if ($error !== ''): ?>
-        <p><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></p>
-      <?php endif; ?>
-      <p>Tras iniciar sesion, el contenido se muestra solo en la ruta protegida.</p>
-      <p><a href="contenido.php">Abrir ruta protegida de contenido</a></p>
-    </section>
   </main>
 </body>
 </html>
