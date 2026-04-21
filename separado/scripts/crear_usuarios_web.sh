@@ -1,60 +1,47 @@
 #!/bin/bash
 # ================================================
 # crear_usuarios_web.sh
-# Genera 5 usuarios con acceso limitado a uploads
-# del sitio propio en /var/www/mi_sitio/uploads/
+# Genera 5 usuarios como registros en BD
 # ================================================
 
-UPLOAD_BASE="/var/www/mi_sitio/uploads"
-LOG="/root/credenciales_web.log"
-GRUPO="webupload"
+set -euo pipefail
 
-# Crear grupo compartido si no existe
-getent group "$GRUPO" &>/dev/null || sudo groupadd "$GRUPO"
+DB_HOST="${DB_HOST:-localhost}"
+DB_NAME="${DB_NAME:-mi_sitio_db}"
+DB_USER="${DB_USER:-root}"
+DB_PASS="${DB_PASS:-root}"
+LOG="${LOG:-./credenciales_usuarios_db.log}"
+MYSQL_BIN="${MYSQL_BIN:-}"
 
-# Ajustar directorio base con SGID
-sudo chown www-data:"$GRUPO" "$UPLOAD_BASE"
-sudo chmod 2775 "$UPLOAD_BASE"
+if [ -z "$MYSQL_BIN" ]; then
+  if [ -x "/opt/lampp/bin/mysql" ]; then
+    MYSQL_BIN="/opt/lampp/bin/mysql"
+  else
+    MYSQL_BIN="mysql"
+  fi
+fi
 
-echo "=== Creación de usuarios $(date) ===" | \
-  sudo tee -a "$LOG" >/dev/null
+MYSQL_CMD=("$MYSQL_BIN" -h "$DB_HOST" -u "$DB_USER" "-p$DB_PASS" "$DB_NAME")
 
-# Bucle for: crear usuarios webcontent1 al webcontent5
+echo "=== Creación de usuarios BD $(date) ===" >> "$LOG"
+
+# Bucle for: crear usuarios webcontent1 al webcontent5 en BD
 for i in $(seq 1 5); do
-    USER="webcontent$i"
-    PASS=$(openssl rand -base64 14)
-    USER_DIR="$UPLOAD_BASE/$USER"
+    USUARIO="user$i"
+    PASS="password$i"
 
-    # Crear usuario sin shell interactivo
-    if id "$USER" &>/dev/null; then
-        echo "[SKIP] $USER ya existe"
+    EXISTE=$(
+      "${MYSQL_CMD[@]}" -Nse "SELECT COUNT(*) FROM usuarios WHERE usuario='${USUARIO}';"
+    )
+
+    if [ "$EXISTE" -gt 0 ]; then
+        echo "[SKIP] $USUARIO ya existe en BD"
     else
-        sudo useradd \
-            --create-home \
-            --shell /usr/sbin/nologin \
-            --groups "$GRUPO" \
-            --comment "Subidor de contenido web $i" \
-            "$USER"
-
-        echo "$USER:$PASS" | sudo chpasswd
-
-        # Directorio privado de uploads
-        sudo mkdir -p "$USER_DIR"
-        sudo chown "$USER":"$GRUPO" "$USER_DIR"
-        sudo chmod 750 "$USER_DIR"
-
-        # Guardar credencial en log seguro
-        printf "%-15s | %s\n" "$USER" "$PASS" | \
-          sudo tee -a "$LOG" >/dev/null
-
-        echo "[OK] Creado: $USER → $USER_DIR"
+        "${MYSQL_CMD[@]}" -e "
+          INSERT INTO usuarios (usuario, password)
+          VALUES ('${USUARIO}', '${PASS}');
+        "
+        printf "%-15s | %s\n" "$USUARIO" "$PASS" >> "$LOG"
+        echo "[OK] Usuario BD creado: $USUARIO"
     fi
 done
-
-# Proteger log de credenciales
-sudo chmod 600 "$LOG"
-sudo chown root:root "$LOG"
-
-echo "
---- Usuarios del grupo $GRUPO ---"
-getent group "$GRUPO"
