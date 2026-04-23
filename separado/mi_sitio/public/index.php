@@ -86,7 +86,8 @@ if ($usuarioLogueado) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= htmlspecialchars(SITE_NAME, ENT_QUOTES, 'UTF-8') ?></title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center px-4 py-10">
 
